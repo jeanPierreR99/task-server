@@ -1,0 +1,106 @@
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entities/user.entity';
+import { ILike, Repository } from 'typeorm';
+import { CreateUserDto, LoginUser } from 'src/dto/user.dto';
+import * as bcrypt from 'bcrypt';
+import { Category } from 'src/entities/category.entity';
+import * as fs from 'fs';
+import * as path from 'path';
+import { UnauthorizedException } from '@nestjs/common';
+@Injectable()
+export class UserService {
+    constructor(
+        @InjectRepository(User)
+        private readonly userRepo: Repository<User>,
+        @InjectRepository(Category)
+        private readonly categoryRepo: Repository<Category>,
+    ) { }
+
+    async create(createUserDto: CreateUserDto): Promise<User> {
+        const saltOrRounds = 10;
+        const passwordHash = await bcrypt.hash(createUserDto.passwordHash, saltOrRounds);
+
+        const user = this.userRepo.create({
+            ...createUserDto,
+            passwordHash,
+        });
+
+        const savedUser = await this.userRepo.save(user);
+
+        const defaultCategory = this.categoryRepo.create({
+            title: 'Añadidas recientes',
+            user: savedUser,
+            index: true,
+        });
+        await this.categoryRepo.save(defaultCategory);
+
+        const uploadBasePath = path.join(__dirname, '..', '..', 'uploads');
+        const userFolder = path.join(uploadBasePath, savedUser.id);
+
+        if (!fs.existsSync(userFolder)) {
+            fs.mkdirSync(userFolder, { recursive: true });
+        }
+
+        return savedUser;
+    }
+
+    findAll(): Promise<User[]> {
+        return this.userRepo.find({ relations: ['role'] });
+    }
+
+    findById(userId: string): Promise<User> {
+        return this.userRepo.findOne({ where: { id: userId } });
+    }
+
+
+    async validateUser(loginUser: LoginUser): Promise<User | null> {
+        const user = await this.userRepo.findOne({ where: { email: loginUser.email }, relations: ['role'] });
+        if (!user) return null;
+
+        const isMatch = await bcrypt.compare(loginUser.passwordHash, user.passwordHash);
+        return isMatch ? user : null;
+    }
+
+    async login(loginUser: LoginUser): Promise<User> {
+        const user = await this.validateUser(loginUser);
+        if (!user) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        if (!user.active) {
+            throw new UnauthorizedException('Account is inactive');
+        }
+
+        return user;
+    }
+
+
+    async searchByName(query: string): Promise<User[]> {
+        return await this.userRepo.find({
+            where: {
+                name: ILike(`%${query}%`)
+            }
+        });
+    }
+
+    async changeRole(userId: string, roleId: string): Promise<User> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        user.roleId = roleId;
+        return await this.userRepo.save(user);
+    }
+
+    async changeActiveStatus(userId: string, isActive: boolean): Promise<User> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        user.active = isActive;
+        return await this.userRepo.save(user);
+    }
+}
