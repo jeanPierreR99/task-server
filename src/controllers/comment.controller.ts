@@ -21,7 +21,9 @@ export class CommentController {
                     const ext = extname(file.originalname);
                     callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
                 },
+
             }),
+            limits: { fileSize: 1.3 * 1024 * 1024 * 1024 }, // 1.3 GB
         }),
     )
     async create(

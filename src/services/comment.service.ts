@@ -80,7 +80,7 @@ export class CommentService {
 
         const activity = this.activityRepository.create({
             action: `Comentó la tarea y subió ${files.length} archivo${files.length !== 1 ? 's' : ''}`,
-            createdAt: new Date(),
+            createdAt: newComment.date,
             user,
             task,
             comment: newComment,

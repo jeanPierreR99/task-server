@@ -25,7 +25,7 @@ export class Activity {
     @ManyToOne(() => Subtask, subtask => subtask.activities, { nullable: true, onDelete: 'CASCADE' })
     subtask: Subtask;
 
-    @OneToMany(() => File, file => file.activity, { cascade: true })
+    @OneToMany(() => File, file => file.activity, { nullable: true, cascade: true })
     files: File[];
 
     @ManyToOne(() => Comment, comment => comment.activities, { nullable: true, onDelete: 'CASCADE' })
