@@ -31,6 +31,12 @@ import { CommentGateway } from 'src/gateway/comment.gateway';
 import { ActivityGateway } from 'src/gateway/activity.gateway';
 import { SeedService } from 'src/services/seed.service';
 import { TaskGateway } from 'src/gateway/task.gateway';
+import { PrintScannerController } from 'src/controllers/printScanner.controller';
+import { PrintScannerService } from 'src/services/printScanner.service';
+import { PrintScanner } from 'src/entities/printScanner.entity';
+import { Office } from 'src/entities/Office.entity';
+import { OfficeService } from 'src/services/office.service';
+import { OfficeController } from 'src/controllers/office.controller';
 
 @Module({
     imports: [
@@ -46,7 +52,9 @@ import { TaskGateway } from 'src/gateway/task.gateway';
             Subtask,
             Comment,
             File,
-            Activity
+            Activity,
+            PrintScanner,
+            Office
         ]),
     ],
     providers: [
@@ -61,7 +69,9 @@ import { TaskGateway } from 'src/gateway/task.gateway';
         CommentGateway,
         ActivityGateway,
         TaskGateway,
-        SeedService
+        SeedService,
+        PrintScannerService,
+        OfficeService,
     ],
     controllers: [
         RoleController,
@@ -72,7 +82,9 @@ import { TaskGateway } from 'src/gateway/task.gateway';
         SubtaskController,
         CommentController,
         FileController,
-        ActivityController
+        ActivityController,
+        PrintScannerController,
+        OfficeController
 
     ],
     exports: [SeedService],

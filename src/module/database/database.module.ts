@@ -9,6 +9,8 @@ import { Subtask } from 'src/entities/subtask.entity';
 import { Task } from 'src/entities/task.entity';
 import { User } from 'src/entities/user.entity';
 import { Activity } from 'src/entities/activity.entity';
+import { PrintScanner } from 'src/entities/printScanner.entity';
+import { Office } from 'src/entities/Office.entity';
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -24,7 +26,7 @@ import { Activity } from 'src/entities/activity.entity';
                 username: config.get<string>('DB_USER'),
                 password: config.get<string>('DB_PASSWORD'),
                 database: config.get<string>('DB_NAME'),
-                entities: [Category, Comment, File, Role, Subtask, Task, User, Activity],
+                entities: [Category, Comment, File, Role, Subtask, Task, User, Activity, PrintScanner, Office],
                 synchronize: true,
                 // logging: true,
                 // logger: 'advanced-console',

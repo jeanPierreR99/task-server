@@ -24,8 +24,10 @@ export class CreateTaskDto {
 
     @IsString()
     categoryId: string;
-}
 
+    @IsString()
+    officeId: string;
+}
 
 export class UpdateTaskDto {
     @IsOptional()
@@ -59,4 +61,8 @@ export class UpdateTaskDto {
     @IsOptional()
     @IsString()
     categoryId: string;
+
+    @IsOptional()
+    @IsString()
+    officeId: string;
 }

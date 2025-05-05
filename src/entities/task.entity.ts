@@ -5,6 +5,7 @@ import { Subtask } from './subtask.entity';
 import { Comment } from './comment.entity';
 import { File } from './file.entity';
 import { Activity } from './activity.entity';
+import { Office } from './Office.entity';
 
 @Entity()
 export class Task {
@@ -47,4 +48,7 @@ export class Task {
 
     @OneToMany(() => File, file => file.task, { cascade: true, onDelete: 'CASCADE' })
     files: File[];
+
+    @ManyToOne(() => Office, office => office.tasks, { nullable: true })
+    office: Office;
 }

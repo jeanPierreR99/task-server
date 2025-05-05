@@ -6,6 +6,7 @@ import { User } from 'src/entities/user.entity';
 import { Category } from 'src/entities/category.entity';
 import { CreateTaskDto, UpdateTaskDto } from 'src/dto/task.dto';
 import { TaskGateway } from 'src/gateway/task.gateway';
+import { Office } from 'src/entities/Office.entity';
 
 @Injectable()
 export class TaskService {
@@ -18,6 +19,9 @@ export class TaskService {
 
         @InjectRepository(Category)
         private categoryRepository: Repository<Category>,
+
+        @InjectRepository(Office)
+        private officeRepository: Repository<Office>,
 
         private taskGateway: TaskGateway,
 
@@ -36,6 +40,10 @@ export class TaskService {
             where: { id: createTaskDto.created_by },
         });
 
+        const office = await this.officeRepository.findOne({
+            where: { id: createTaskDto.officeId },
+        });
+
         if (!responsible) {
             throw new Error('User not found');
         }
@@ -48,11 +56,16 @@ export class TaskService {
             throw new Error('User creating task not found');
         }
 
+        if (!office) {
+            throw new Error('Office not found');
+        }
+
         const task = this.taskRepository.create({
             ...createTaskDto,
             responsible,
             category,
             created_by: userCreatingTask,
+            office
         });
 
         await this.taskGateway.newTaskAsigned({ userId: responsible.id, task })
@@ -61,7 +74,7 @@ export class TaskService {
 
     async findAll(): Promise<Task[]> {
         return this.taskRepository.find({
-            relations: ['responsible', 'created_by', 'subtasks', 'subtasks.files', 'comments', 'files', 'category', 'activities', 'activities.user'],
+            relations: ['responsible', 'created_by', 'subtasks', 'subtasks.files', 'office', 'comments', 'files', 'category', 'activities', 'activities.user'],
         });
     }
 
@@ -70,6 +83,16 @@ export class TaskService {
             where: { created_by: { id: userId }, completed: status },
         });
     }
+
+    async findAllFalse(userId: string): Promise<Task[]> {
+        return this.taskRepository.find({
+            where: [
+                { created_by: { id: userId }, completed: false },
+                { responsible: { id: userId }, completed: false },
+            ],
+        });
+    }
+
 
 
     async findFileJoin(taskId: string): Promise<Task[]> {

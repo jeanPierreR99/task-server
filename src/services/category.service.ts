@@ -43,7 +43,7 @@ export class CategoryService {
 
         return this.categoryRepository.find({
             where: { user: { id: userId } },
-            relations: ['tasks', 'tasks.created_by', 'tasks.responsible'],
+            relations: ['tasks', 'tasks.created_by', 'tasks.responsible', 'tasks.office'],
         });
     }
 
