@@ -7,6 +7,8 @@ import { Category } from 'src/entities/category.entity';
 import { CreateTaskDto, UpdateTaskDto } from 'src/dto/task.dto';
 import { TaskGateway } from 'src/gateway/task.gateway';
 import { Office } from 'src/entities/Office.entity';
+import { ActivityGateway } from 'src/gateway/activity.gateway';
+import { Activity } from 'src/entities/activity.entity';
 
 @Injectable()
 export class TaskService {
@@ -23,7 +25,12 @@ export class TaskService {
         @InjectRepository(Office)
         private officeRepository: Repository<Office>,
 
+        @InjectRepository(Activity)
+        private activityRepository: Repository<Activity>,
+
         private taskGateway: TaskGateway,
+
+        private activityGateway: ActivityGateway,
 
     ) { }
 
@@ -116,7 +123,7 @@ export class TaskService {
         return this.taskRepository.save(task);
     }
 
-    async update(idTask: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    async update(idTask: string, idUser: string, updateTaskDto: any): Promise<Task> {
         const task = await this.taskRepository.findOne({
             where: { id: idTask },
             relations: ['responsible']
@@ -125,9 +132,25 @@ export class TaskService {
         if (!task) throw new NotFoundException('Tarea no encontrada');
 
         if (updateTaskDto.responsibleId) {
+
             const user = await this.userRepository.findOne({ where: { id: updateTaskDto.responsibleId } });
+
             if (!user) throw new NotFoundException('Usuario responsable no encontrado');
+
+            const userAction = await this.userRepository.findOne({ where: { id: idUser } })
+
             task.responsible = user;
+
+            const activity = this.activityRepository.create({
+                action: `Actualizo de responsable la tarea a ${user.name}`,
+                createdAt: updateTaskDto.dateAux,
+                user: userAction,
+                task,
+            });
+            console.log(activity)
+            await this.activityRepository.save(activity)
+            await this.activityGateway.newActivity({ data: activity })
+
         }
 
         const { responsibleId, ...rest } = updateTaskDto;

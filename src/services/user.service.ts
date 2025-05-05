@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { ILike, Repository } from 'typeorm';
-import { CreateUserDto, LoginUser } from 'src/dto/user.dto';
+import { CreateUserDto, LoginUser, UpdateUserDto } from 'src/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { Category } from 'src/entities/category.entity';
 import * as fs from 'fs';
@@ -103,4 +103,21 @@ export class UserService {
         user.active = isActive;
         return await this.userRepo.save(user);
     }
+
+    async update(userId: string, updateData: UpdateUserDto): Promise<User> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        if (updateData.passwordHash) {
+            const saltOrRounds = 10;
+            updateData.passwordHash = await bcrypt.hash(updateData.passwordHash, saltOrRounds);
+        }
+
+        Object.assign(user, updateData);
+
+        return await this.userRepo.save(user);
+    }
+
 }

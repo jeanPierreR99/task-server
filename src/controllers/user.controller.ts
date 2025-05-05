@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { CreateUserDto, LoginUser } from 'src/dto/user.dto';
+import { Body, Controller, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { CreateUserDto, LoginUser, UpdateUserDto } from 'src/dto/user.dto';
 import { UserService } from 'src/services/user.service';
 
 @Controller('users')
@@ -59,5 +59,10 @@ export class UserController {
             message: `Usuario ${isActive ? 'activado' : 'desactivado'} correctamente`,
             data: updatedUser,
         };
+    }
+
+    @Put(':userId')
+    async update(@Param('userId') userId: string, @Body() data: UpdateUserDto) {
+        return await this.userService.update(userId, data);
     }
 }

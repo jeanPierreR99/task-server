@@ -29,3 +29,21 @@ export class LoginUser {
   @IsString()
   passwordHash: string;
 }
+
+export class UpdateUserDto {
+  @IsString()
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsNumber()
+  telephone: number;
+
+  @IsString()
+  passwordHash: string;
+
+  @IsOptional()
+  @IsString()
+  imageUrl: string;
+}
