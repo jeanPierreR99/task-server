@@ -9,6 +9,7 @@ import { File } from 'src/entities/file.entity';
 import { CommentGateway } from 'src/gateway/comment.gateway';
 import { Activity } from 'src/entities/activity.entity';
 import { ActivityGateway } from 'src/gateway/activity.gateway';
+import { GetDay } from 'src/utils/date';
 
 @Injectable()
 export class CommentService {
@@ -63,7 +64,7 @@ export class CommentService {
                 const savedFile = this.fileRepository.create({
                     name: file.originalname,
                     reference: user.id,
-                    uploaded_in: new Date(),
+                    uploaded_in: GetDay(),
                     url: `/uploads/${file.filename}`,
                     comment: savedComment,
                 });
@@ -77,10 +78,9 @@ export class CommentService {
             ...savedComment,
             files: savedFiles.length > 0 ? savedFiles : null,
         };
-
         const activity = this.activityRepository.create({
             action: `Comentó la tarea y subió ${files.length} archivo${files.length !== 1 ? 's' : ''}`,
-            createdAt: newComment.date,
+            createdAt: GetDay(),
             user,
             task,
             comment: newComment,

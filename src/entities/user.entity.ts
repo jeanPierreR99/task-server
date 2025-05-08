@@ -5,6 +5,7 @@ import { Comment } from './comment.entity';
 import { Category } from './category.entity';
 import { Role } from './role.entity';
 import { Activity } from './activity.entity';
+import { Project } from './project.entity';
 
 @Entity()
 export class User {
@@ -29,6 +30,9 @@ export class User {
     @Column()
     roleId: string;
 
+    @Column()
+    projectId: string;
+
     @Column({ default: true })
     active: boolean;
 
@@ -41,12 +45,12 @@ export class User {
     @OneToMany(() => Comment, comment => comment.user)
     comments: Comment[];
 
-    @OneToMany(() => Category, category => category.user)
-    categories: Category[];
-
     @OneToMany(() => Activity, activity => activity.user)
     activities: Activity[];
 
     @ManyToOne(() => Role, role => role.users)
     role: Role;
+
+    @ManyToOne(() => Project, project => project.users)
+    project: Project;
 }

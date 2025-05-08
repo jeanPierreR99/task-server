@@ -19,6 +19,9 @@ export class CreateUserDto {
 
   @IsUUID()
   roleId: string;
+
+  @IsUUID()
+  projectId: string;
 }
 
 export class LoginUser {

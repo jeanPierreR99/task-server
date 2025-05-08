@@ -12,7 +12,7 @@ export class Comment {
     @Column('text')
     comment: string;
 
-    @Column()
+    @Column({ type: 'timestamp', precision: 3 })
     date: Date;
 
     @ManyToOne(() => Task, task => task.comments, { onDelete: 'CASCADE' })

@@ -6,5 +6,5 @@ export class CreateCategoryDto {
     title: string;
 
     @IsString()
-    userId: string;
+    projectId: string;
 }

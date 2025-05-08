@@ -1,16 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Comment } from 'src/entities/comment.entity';
-import { Category } from 'src/entities/category.entity';
-import { File } from 'src/entities/file.entity';
-import { Role } from 'src/entities/role.entity';
-import { Subtask } from 'src/entities/subtask.entity';
-import { Task } from 'src/entities/task.entity';
-import { User } from 'src/entities/user.entity';
-import { Activity } from 'src/entities/activity.entity';
-import { PrintScanner } from 'src/entities/printScanner.entity';
-import { Office } from 'src/entities/Office.entity';
+import { Category, Role, Subtask, Task, User, Activity, PrintScanner, Office, Project, File, Comment, Ticket } from 'src/entities';
+import { TicketCounter } from 'src/entities/ticketCounter.entity';
+
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -26,7 +19,7 @@ import { Office } from 'src/entities/Office.entity';
                 username: config.get<string>('DB_USER'),
                 password: config.get<string>('DB_PASSWORD'),
                 database: config.get<string>('DB_NAME'),
-                entities: [Category, Comment, File, Role, Subtask, Task, User, Activity, PrintScanner, Office],
+                entities: [Category, Comment, File, Role, Subtask, Task, User, Activity, PrintScanner, Office, Project, Ticket, TicketCounter],
                 synchronize: true,
                 // logging: true,
                 // logger: 'advanced-console',

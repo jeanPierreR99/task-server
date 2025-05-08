@@ -10,6 +10,7 @@ export class CreateTaskDto {
     @IsBoolean()
     completed: boolean;
 
+    @IsOptional()
     @IsString()
     created_by: string;
 
@@ -19,12 +20,15 @@ export class CreateTaskDto {
     @IsDateString()
     dateCulmined: string;
 
+    @IsOptional()
     @IsString()
     responsibleId: string;
 
+    @IsOptional()
     @IsString()
     categoryId: string;
 
+    @IsOptional()
     @IsString()
     officeId: string;
 }
@@ -45,6 +49,10 @@ export class UpdateTaskDto {
     @IsOptional()
     @IsString()
     created_by: string;
+
+    @IsOptional()
+    @IsString()
+    nameTicket: string;
 
     @IsOptional()
     @IsString()

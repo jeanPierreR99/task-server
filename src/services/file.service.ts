@@ -8,6 +8,8 @@ import { Subtask } from 'src/entities/subtask.entity';
 import { User } from 'src/entities/user.entity';
 import * as fs from 'fs';
 import * as path from 'path';
+import { GetDay } from 'src/utils/date';
+import { Project } from 'src/entities';
 
 @Injectable()
 export class FileService {
@@ -24,6 +26,9 @@ export class FileService {
 
         @InjectRepository(User)
         private userRepository: Repository<User>,
+
+        @InjectRepository(Project)
+        private projectRepository: Repository<Project>,
     ) { }
 
 
@@ -70,7 +75,7 @@ export class FileService {
     }
 
     async findInFolder(userId: string, nameFolder: string): Promise<File[]> {
-        const user = await this.userRepository.findOne({ where: { id: userId } });
+        const user = await this.projectRepository.findOne({ where: { id: userId } });
 
         if (!user) {
             throw new Error('User not found');
@@ -88,7 +93,7 @@ export class FileService {
         const newFile = this.fileRepository.create({
             name: file.originalname,
             reference: userId,
-            uploaded_in: new Date(),
+            uploaded_in: GetDay(),
             url: `/uploads/${userId}/${file.filename}`,
             task: null,
             subtask: null,
@@ -110,7 +115,7 @@ export class FileService {
             const savedFile = this.fileRepository.create({
                 name: file.originalname,
                 reference: subtask.responsible.id,
-                uploaded_in: new Date(),
+                uploaded_in: GetDay(),
                 url: `/uploads/${file.filename}`,
                 subtask: subtask,
             });
@@ -170,7 +175,7 @@ export class FileService {
     }
 
     async saveFilesToFolder(userId: string, folderName: string, files: Express.Multer.File[]) {
-        const user = await this.userRepository.findOne({
+        const user = await this.projectRepository.findOne({
             where: { id: userId },
         });
 
@@ -183,7 +188,7 @@ export class FileService {
                 name: file.originalname,
                 reference: user.id,
                 nameFolder: folderName,
-                uploaded_in: new Date(),
+                uploaded_in: GetDay(),
                 inFolder: true,
                 url: `/uploads/${userId}/${folderName}/${file.filename}`,
             });

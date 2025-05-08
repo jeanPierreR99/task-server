@@ -15,7 +15,7 @@ export class Subtask {
   @Column()
   completed: boolean;
 
-  @Column('timestamp')
+  @Column({ type: 'timestamp', precision: 3 })
   dateCulmined: Date;
 
   @ManyToOne(() => Task, task => task.subtasks, { onDelete: 'CASCADE' })

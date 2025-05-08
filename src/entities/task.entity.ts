@@ -15,27 +15,36 @@ export class Task {
     @Column()
     name: string;
 
-    @Column()
+    @Column({ type: 'text' })
     description: string;
 
     @Column()
     completed: boolean;
 
-    @ManyToOne(() => User)
+    @Column({ default: false })
+    ticket: boolean;
+
+    @ManyToOne(() => User, { nullable: true })
     @JoinColumn({ name: 'created_by' })
     created_by: User;
 
     @Column()
     status: string;
 
-    @Column('timestamp')
+    @Column({ nullable: true })
+    nameTicket: string;
+
+    @Column({ type: 'timestamp', precision: 3 })
     dateCulmined: Date;
 
-    @ManyToOne(() => User, user => user.tasks)
+    @ManyToOne(() => User, user => user.tasks, { nullable: true })
     responsible: User;
 
-    @ManyToOne(() => Category, category => category.tasks)
+    @ManyToOne(() => Category, category => category.tasks, { nullable: true })
     category: Category;
+
+    @ManyToOne(() => Office, office => office.tasks, { nullable: true })
+    office: Office;
 
     @OneToMany(() => Subtask, subtask => subtask.task, { cascade: true, onDelete: 'CASCADE' })
     subtasks: Subtask[];
@@ -48,7 +57,4 @@ export class Task {
 
     @OneToMany(() => File, file => file.task, { cascade: true, onDelete: 'CASCADE' })
     files: File[];
-
-    @ManyToOne(() => Office, office => office.tasks, { nullable: true })
-    office: Office;
 }

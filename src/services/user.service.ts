@@ -5,8 +5,6 @@ import { ILike, Repository } from 'typeorm';
 import { CreateUserDto, LoginUser, UpdateUserDto } from 'src/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { Category } from 'src/entities/category.entity';
-import * as fs from 'fs';
-import * as path from 'path';
 import { UnauthorizedException } from '@nestjs/common';
 @Injectable()
 export class UserService {
@@ -28,25 +26,15 @@ export class UserService {
 
         const savedUser = await this.userRepo.save(user);
 
-        const defaultCategory = this.categoryRepo.create({
-            title: 'Añadidas recientes',
-            user: savedUser,
-            index: true,
-        });
-        await this.categoryRepo.save(defaultCategory);
-
-        const uploadBasePath = path.join(__dirname, '..', '..', 'uploads');
-        const userFolder = path.join(uploadBasePath, savedUser.id);
-
-        if (!fs.existsSync(userFolder)) {
-            fs.mkdirSync(userFolder, { recursive: true });
-        }
-
         return savedUser;
     }
 
+    findProjectAll(projectId: string): Promise<User[]> {
+        return this.userRepo.find({ relations: ['role', 'project'], where: { project: { id: projectId } } });
+    }
+
     findAll(): Promise<User[]> {
-        return this.userRepo.find({ relations: ['role'] });
+        return this.userRepo.find({ relations: ['role', 'project'] });
     }
 
     findById(userId: string): Promise<User> {
@@ -55,7 +43,7 @@ export class UserService {
 
 
     async validateUser(loginUser: LoginUser): Promise<User | null> {
-        const user = await this.userRepo.findOne({ where: { email: loginUser.email }, relations: ['role'] });
+        const user = await this.userRepo.findOne({ where: { email: loginUser.email }, relations: ['role', 'project'] });
         if (!user) return null;
 
         const isMatch = await bcrypt.compare(loginUser.passwordHash, user.passwordHash);

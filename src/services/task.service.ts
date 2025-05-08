@@ -9,6 +9,9 @@ import { TaskGateway } from 'src/gateway/task.gateway';
 import { Office } from 'src/entities/Office.entity';
 import { ActivityGateway } from 'src/gateway/activity.gateway';
 import { Activity } from 'src/entities/activity.entity';
+import { GetDay } from 'src/utils/date';
+import { TicketGateway } from 'src/gateway/ticket.gateway';
+import { Ticket } from 'src/entities';
 
 @Injectable()
 export class TaskService {
@@ -25,13 +28,14 @@ export class TaskService {
         @InjectRepository(Office)
         private officeRepository: Repository<Office>,
 
+        @InjectRepository(Ticket)
+        private ticketRepository: Repository<Ticket>,
+
         @InjectRepository(Activity)
         private activityRepository: Repository<Activity>,
-
         private taskGateway: TaskGateway,
-
         private activityGateway: ActivityGateway,
-
+        private ticketGateway: TicketGateway,
     ) { }
 
     async create(createTaskDto: CreateTaskDto): Promise<Task> {
@@ -81,26 +85,38 @@ export class TaskService {
 
     async findAll(): Promise<Task[]> {
         return this.taskRepository.find({
-            relations: ['responsible', 'created_by', 'subtasks', 'subtasks.files', 'office', 'comments', 'files', 'category', 'activities', 'activities.user'],
+            relations: ['responsible', 'created_by', 'office'],
+            order: { dateCulmined: "DESC" }
         });
     }
-
-    async findFalse(userId: string, status: boolean): Promise<Task[]> {
-        return this.taskRepository.find({
-            where: { created_by: { id: userId }, completed: status },
-        });
+    async findAllTicket(): Promise<Task[]> {
+        return this.taskRepository
+            .createQueryBuilder('task')
+            .leftJoinAndSelect('task.responsible', 'responsible')
+            .leftJoinAndSelect('task.created_by', 'created_by')
+            .leftJoinAndSelect('task.office', 'office')
+            .where('task.ticket = :ticket', { ticket: true })
+            .andWhere('task.responsible IS NULL')
+            .orderBy('task.dateCulmined', 'DESC')
+            .getMany();
     }
 
-    async findAllFalse(userId: string): Promise<Task[]> {
+
+    async findFalse(idProject: string, status: boolean): Promise<Task[]> {
         return this.taskRepository.find({
             where: [
-                { created_by: { id: userId }, completed: false },
-                { responsible: { id: userId }, completed: false },
+                { category: { project: { id: idProject } }, completed: status },
             ],
         });
     }
 
-
+    async findAllFalse(idProject: string): Promise<Task[]> {
+        return this.taskRepository.find({
+            where: [
+                { category: { project: { id: idProject } }, completed: false },
+            ],
+        });
+    }
 
     async findFileJoin(taskId: string): Promise<Task[]> {
         const task = await this.taskRepository.find({
@@ -143,12 +159,22 @@ export class TaskService {
 
             const activity = this.activityRepository.create({
                 action: `Actualizo de responsable la tarea a ${user.name}`,
-                createdAt: updateTaskDto.dateAux,
+                createdAt: GetDay(),
                 user: userAction,
                 task,
             });
-            console.log(activity)
+
+            const category = await this.categoryRepository.findOne({
+                where: {
+                    project: { id: updateTaskDto.projectId },
+                    index: true,
+                },
+            });
+
+            task.category = category;
+            await this.taskRepository.save(task)
             await this.activityRepository.save(activity)
+            await this.ticketGateway.newTaskTicket({ data: task })
             await this.activityGateway.newActivity({ data: activity })
 
         }
@@ -176,5 +202,24 @@ export class TaskService {
 
         await this.taskRepository.remove(task);
     }
+
+    async updateStatus(idTask: string, completed: boolean) {
+        const task = await this.taskRepository.findOne({ where: { id: idTask } });
+        if (!task) throw new NotFoundException('Tarea no encontrada');
+
+        task.completed = completed;
+
+        const ticket = await this.ticketRepository.findOne({ where: { code: task.name } });
+        if (ticket) {
+            ticket.status = completed;
+            ticket.updatedAt = GetDay() as any;
+
+            await this.ticketRepository.save(ticket);
+            await this.ticketGateway.newTicket({ data: ticket })
+        }
+
+        return this.taskRepository.save(task);
+    }
+
 
 }

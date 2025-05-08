@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Get, Patch, Query, Put, Delete, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, Patch, Query, Put, Delete, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { TaskService } from 'src/services/task.service';
 import { CreateTaskDto } from 'src/dto/task.dto';
 import { Task } from 'src/entities/task.entity';
@@ -18,14 +18,18 @@ export class TaskController {
     async findAll(): Promise<Task[]> {
         return this.taskService.findAll();
     }
+    @Get('ticket')
+    async findAllTicket(): Promise<Task[]> {
+        return this.taskService.findAllTicket();
+    }
     @Get('user/:userId')
     async findAllFalse(@Param('userId') userId: string): Promise<Task[]> {
         return this.taskService.findAllFalse(userId);
     }
-    @Get(':status/user/:userId')
-    async findFalse(@Param('userId') userId: string, @Param('status') status: string): Promise<Task[]> {
+    @Get(':status/project/:projectId')
+    async findFalse(@Param('projectId') projectId: string, @Param('status') status: string): Promise<Task[]> {
         const parsedStatus = status === 'true';
-        return this.taskService.findFalse(userId, parsedStatus);
+        return this.taskService.findFalse(projectId, parsedStatus);
     }
 
     @Get("files/task/:idTask")
@@ -60,6 +64,18 @@ export class TaskController {
 
             throw new HttpException('Error al eliminar la tarea', HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Patch(':id/status')
+    async updateTaskStatus(
+        @Param('id') id: string,
+        @Body('completed') completed: boolean,
+    ) {
+        const updatedTask = await this.taskService.updateStatus(id, completed);
+
+        if (!updatedTask) throw new NotFoundException('Tarea no encontrada');
+
+        return updatedTask;
     }
 }
 

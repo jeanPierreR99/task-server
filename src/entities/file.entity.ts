@@ -22,7 +22,7 @@ export class File {
     nameFolder: string;
 
 
-    @Column('timestamp')
+    @Column({ type: 'timestamp', precision: 3 })
     uploaded_in: Date;
 
     @Column()

@@ -6,6 +6,7 @@ import { Activity } from 'src/entities/activity.entity';
 import { User } from 'src/entities/user.entity';
 import { Task } from 'src/entities/task.entity';
 import { Subtask } from 'src/entities/subtask.entity';
+import { GetDay } from 'src/utils/date';
 
 @Injectable()
 export class ActivityService {
@@ -53,7 +54,7 @@ export class ActivityService {
 
         const activity = this.activityRepository.create({
             action: createActivityDto.action,
-            createdAt: createActivityDto.createdAt,
+            createdAt: GetDay(),
             user,
             task,
             subtask,

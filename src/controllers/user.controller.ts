@@ -11,6 +11,11 @@ export class UserController {
         return this.userService.create(createUser);
     }
 
+    @Get('project/:id')
+    findProjectAll(@Param('id') id: string) {
+        return this.userService.findProjectAll(id);
+    }
+
     @Get()
     findAll() {
         return this.userService.findAll();
@@ -39,7 +44,6 @@ export class UserController {
 
     @Get('search')
     async search(@Query('q') query: string) {
-        console.log('GET /users/search with query:', query);
         return this.userService.searchByName(query);
     }
 

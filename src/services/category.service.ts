@@ -1,9 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCategoryDto } from 'src/dto/category.dto';
+import { Project } from 'src/entities';
 import { Category } from 'src/entities/category.entity';
-import { Task } from 'src/entities/task.entity';
-import { User } from 'src/entities/user.entity';
 import { Brackets, Repository } from 'typeorm';
 
 @Injectable()
@@ -11,30 +10,30 @@ export class CategoryService {
     constructor(
         @InjectRepository(Category)
         private categoryRepository: Repository<Category>,
-        @InjectRepository(User)
-        private userRepository: Repository<User>,
+        @InjectRepository(Project)
+        private projectRepository: Repository<Project>,
     ) { }
 
     async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-        const user = await this.userRepository.findOne({
-            where: { id: createCategoryDto.userId },
+        const project = await this.projectRepository.findOne({
+            where: { id: createCategoryDto.projectId },
         });
 
-        if (!user) {
-            throw new NotFoundException('User not found');
+        if (!project) {
+            throw new NotFoundException('project not found');
         }
 
         const category = this.categoryRepository.create({
             ...createCategoryDto,
-            user,
+            project
         });
 
         return this.categoryRepository.save(category);
     }
 
-    async findAll(userId: string): Promise<Category[]> {
-        const user = await this.userRepository.findOne({
-            where: { id: userId },
+    async findAll(projectId: string): Promise<Category[]> {
+        const user = await this.projectRepository.findOne({
+            where: { id: projectId },
         });
 
         if (!user) {
@@ -42,7 +41,7 @@ export class CategoryService {
         }
 
         return this.categoryRepository.find({
-            where: { user: { id: userId } },
+            where: { project: { id: projectId } },
             relations: ['tasks', 'tasks.created_by', 'tasks.responsible', 'tasks.office'],
         });
     }
@@ -64,9 +63,9 @@ export class CategoryService {
         await this.categoryRepository.delete(id);
     }
 
-    async findAssignedCategories(userId: string, status: boolean): Promise<Category[]> {
-        const user = await this.userRepository.findOne({
-            where: { id: userId },
+    async findAssignedCategories(projectId: string, status: boolean): Promise<Category[]> {
+        const user = await this.projectRepository.findOne({
+            where: { id: projectId },
         });
 
         if (!user) {
@@ -82,13 +81,13 @@ export class CategoryService {
             .leftJoinAndSelect('subtask.responsible', 'subtask_responsible')
             .where(
                 new Brackets(qb => {
-                    qb.where('responsible.id = :userId')
-                        .orWhere('subtask_responsible.id = :userId');
+                    qb.where('responsible.id = :projectId')
+                        .orWhere('subtask_responsible.id = :projectId');
                 }),
             )
-            .andWhere('created_by.id != :userId', { userId })
+            .andWhere('created_by.id != :projectId', { projectId })
             .andWhere('task.completed = :status', { status })
-            .setParameter('userId', userId)
+            .setParameter('projectId', projectId)
             .getMany();
     }
 }

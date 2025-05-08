@@ -1,4 +1,3 @@
-// office.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Task } from './task.entity';
 
@@ -7,10 +6,10 @@ export class Office {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ length: 100 })
+    @Column()
     name: string;
 
-    @Column({ length: 10 })
+    @Column()
     siglas: string;
 
     @OneToMany(() => Task, task => task.office)
