@@ -55,15 +55,10 @@ export class TaskController {
         @Param('taskId') taskId: string,
         @Param('userId') userId: string,
     ): Promise<void> {
-        try {
-            await this.taskService.deleteById(taskId, userId);
-        } catch (error) {
-            if (error instanceof HttpException) {
-                throw error;
-            }
 
-            throw new HttpException('Error al eliminar la tarea', HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        await this.taskService.deleteById(taskId, userId);
+
+
     }
 
     @Patch(':id/status')

@@ -30,6 +30,7 @@ export class CommentController {
         @Body() createCommentDto: CreateCommentDto,
         @UploadedFiles() files: { files?: Express.Multer.File[] } = {},
     ) {
+        console.log("coemntando")
         const uploadedFiles = files?.files ?? [];
         return this.commentService.create(createCommentDto, uploadedFiles);
     }

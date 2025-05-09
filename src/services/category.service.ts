@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCategoryDto } from 'src/dto/category.dto';
 import { Project } from 'src/entities';
 import { Category } from 'src/entities/category.entity';
+import { TaskGateway } from 'src/gateway';
 import { Brackets, Repository } from 'typeorm';
 
 @Injectable()
@@ -12,6 +13,8 @@ export class CategoryService {
         private categoryRepository: Repository<Category>,
         @InjectRepository(Project)
         private projectRepository: Repository<Project>,
+
+        private taskGateway: TaskGateway
     ) { }
 
     async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
@@ -25,9 +28,11 @@ export class CategoryService {
 
         const category = this.categoryRepository.create({
             ...createCategoryDto,
-            project
+            project,
+            tasks: []
         });
 
+        this.taskGateway.newCategory({ projectId: project.id, category })
         return this.categoryRepository.save(category);
     }
 
@@ -49,9 +54,8 @@ export class CategoryService {
     async delete(id: string): Promise<void> {
         const category = await this.categoryRepository.findOne({
             where: { id },
-            relations: ['tasks'],
+            relations: ['tasks', 'project'],
         });
-
         if (!category) {
             throw new NotFoundException('Categoría no encontrada');
         }
@@ -59,7 +63,7 @@ export class CategoryService {
         if (category.tasks.length > 0) {
             throw new BadRequestException('No puedes eliminar una categoría que tiene tareas');
         }
-
+        this.taskGateway.deleteCategory({ projectId: category.project.id, category })
         await this.categoryRepository.delete(id);
     }
 

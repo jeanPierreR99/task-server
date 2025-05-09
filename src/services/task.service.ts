@@ -44,6 +44,7 @@ export class TaskService {
         });
 
         const category = await this.categoryRepository.findOne({
+            relations: ['project'],
             where: { id: createTaskDto.categoryId },
         });
 
@@ -79,7 +80,7 @@ export class TaskService {
             office
         });
 
-        await this.taskGateway.newTaskAsigned({ userId: responsible.id, task })
+        await this.taskGateway.newTask({ projectId: category.project.id, task })
         return this.taskRepository.save(task);
     }
 
@@ -130,12 +131,13 @@ export class TaskService {
     }
 
     async updateCategory(idTask: string, idCategory: string) {
-        const task = await this.taskRepository.findOne({ where: { id: idTask } });
+        const task = await this.taskRepository.findOne({ relations: ['category'], where: { id: idTask } });
         if (!task) throw new NotFoundException('Tarea no encontrada');
-        const category = await this.categoryRepository.findOne({ where: { id: idCategory } });
+        const category = await this.categoryRepository.findOne({ relations: ['project'], where: { id: idCategory } });
         if (!category) throw new NotFoundException('Categoría no encontrada');
 
         task.category = category;
+        await this.taskGateway.updateTaskCategory({ projectId: category.project.id, task })
         return this.taskRepository.save(task);
     }
 
@@ -189,9 +191,8 @@ export class TaskService {
     async deleteById(taskId: string, userId: string): Promise<void> {
         const task = await this.taskRepository.findOne({
             where: { id: taskId },
-            relations: ['responsible', 'created_by'],
+            relations: ['responsible', 'created_by', 'category.project'],
         });
-
         if (!task) {
             throw new NotFoundException('Tarea no encontrada');
         }
@@ -200,6 +201,7 @@ export class TaskService {
             throw new ForbiddenException('No tienes permiso para eliminar esta tarea');
         }
 
+        await this.taskGateway.deleteTaskProject({ projectId: task.category.project.id, task })
         await this.taskRepository.remove(task);
     }
 
