@@ -52,7 +52,7 @@ export class TicketService {
             completed: false,
             status: 'pendiente',
             ticket: true,
-            dateCulmined: savedTicket.createdAt,
+            dateCulmined: createTicketDto.createdAt,
             responsible: null
         });
 
