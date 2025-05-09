@@ -205,16 +205,17 @@ export class TaskService {
         await this.taskRepository.remove(task);
     }
 
-    async updateStatus(idTask: string, completed: boolean) {
+    async updateStatus(idTask: string, data: any) {
         const task = await this.taskRepository.findOne({ where: { id: idTask } });
         if (!task) throw new NotFoundException('Tarea no encontrada');
 
-        task.completed = completed;
+        task.completed = data.completed;
 
         const ticket = await this.ticketRepository.findOne({ where: { code: task.name } });
         if (ticket) {
-            ticket.status = completed;
-            ticket.updatedAt = GetDay() as any;
+            ticket.status = data.completed;
+
+            ticket.updatedAt = data.updateAt;
 
             await this.ticketRepository.save(ticket);
             await this.ticketGateway.newTicket({ data: ticket })

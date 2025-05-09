@@ -64,9 +64,9 @@ export class TaskController {
     @Patch(':id/status')
     async updateTaskStatus(
         @Param('id') id: string,
-        @Body('completed') completed: boolean,
+        @Body() data: any,
     ) {
-        const updatedTask = await this.taskService.updateStatus(id, completed);
+        const updatedTask = await this.taskService.updateStatus(id, data);
 
         if (!updatedTask) throw new NotFoundException('Tarea no encontrada');
 
