@@ -213,16 +213,18 @@ export class TaskService {
 
         const ticket = await this.ticketRepository.findOne({ where: { code: task.name } });
         if (ticket) {
-            ticket.status = data.completed;
+            await this.ticketRepository.update(ticket.id, {
+                status: data.completed,
+                updatedAt: data.updateAt,
+            });
 
-            ticket.updatedAt = data.updateAt;
-
-            await this.ticketRepository.save(ticket);
-            await this.ticketGateway.newTicket({ data: ticket })
+            const updatedTicket = await this.ticketRepository.findOneBy({ id: ticket.id });
+            await this.ticketGateway.newTicket({ data: updatedTicket });
         }
 
         return this.taskRepository.save(task);
     }
+
 
 
 }
