@@ -11,7 +11,7 @@ export class CreateActivityDto {
 
     @IsDateString()
     @IsNotEmpty()
-    createdAt: string;
+    create_at: string;
 
     @IsUUID()
     @IsOptional()

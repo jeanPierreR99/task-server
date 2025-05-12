@@ -54,7 +54,7 @@ export class ActivityService {
 
         const activity = this.activityRepository.create({
             action: createActivityDto.action,
-            createdAt: GetDay(),
+            create_at: GetDay(),
             user,
             task,
             subtask,
@@ -69,7 +69,7 @@ export class ActivityService {
             skip: offset,
             take: limit,
             order: {
-                createdAt: 'DESC'
+                create_at: 'DESC'
             },
         });
     }
@@ -87,7 +87,7 @@ export class ActivityService {
             where: { user: { id: userId } },
             relations: ['user', 'task', 'subtask', 'files', 'comment'],
             order: {
-                createdAt: 'DESC'
+                create_at: 'DESC'
             },
         });
     }

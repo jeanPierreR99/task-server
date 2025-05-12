@@ -11,7 +11,7 @@ export class CreateTicketDto {
     area: string;
 
     @IsDateString()
-    createdAt: string;
+    create_at: string;
 
     @IsOptional()
     @IsBoolean()
@@ -19,7 +19,7 @@ export class CreateTicketDto {
 
     @IsOptional()
     @IsDateString()
-    updatedAt?: string;
+    update_at?: string;
 }
 
 
@@ -43,11 +43,11 @@ export class UpdateTicketDto {
     @IsOptional()
     @IsBoolean()
     status: boolean;
-    
+
     @IsOptional()
     descriptionStatus: string;
 
     @IsOptional()
     @IsDateString()
-    updatedAt: string;
+    update_at: string;
 }

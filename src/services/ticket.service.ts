@@ -52,7 +52,7 @@ export class TicketService {
             completed: false,
             status: 'pendiente',
             ticket: true,
-            dateCulmined: createTicketDto.createdAt,
+            dateCulmined: createTicketDto.create_at,
             responsible: null
         });
 
@@ -65,7 +65,7 @@ export class TicketService {
 
     async findAll(): Promise<Ticket[]> {
         return await this.ticketRepository.find({
-            order: { createdAt: 'DESC' },
+            order: { create_at: 'DESC' },
         });
     }
 

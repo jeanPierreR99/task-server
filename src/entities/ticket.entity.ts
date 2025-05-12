@@ -18,10 +18,10 @@ export class Ticket {
     area: string;
 
     @Column({ type: 'timestamp', precision: 3 })
-    createdAt: Date;
+    create_at: Date;
 
     @Column({ type: 'timestamp', precision: 3, nullable: true })
-    updatedAt: Date;
+    update_at: Date;
 
     @Column({ default: false })
     status: boolean;

@@ -14,7 +14,7 @@ export class Activity {
     action: string;
 
     @Column({ type: 'timestamp', precision: 3 })
-    createdAt: Date;
+    create_at: Date;
 
     @ManyToOne(() => User, user => user.activities)
     user: User;

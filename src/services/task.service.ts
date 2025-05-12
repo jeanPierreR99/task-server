@@ -173,7 +173,7 @@ export class TaskService {
 
             const activity = this.activityRepository.create({
                 action: `Actualizo de responsable la tarea a ${user.name}`,
-                createdAt: GetDay(),
+                create_at: GetDay(),
                 user: userAction,
                 task,
             });
@@ -227,7 +227,7 @@ export class TaskService {
         if (ticket) {
             await this.ticketRepository.update(ticket.id, {
                 status: data.completed,
-                updatedAt: data.updatedAt,
+                update_at: data.update_at,
                 descriptionStatus: data.descriptionStatus
             });
 
