@@ -38,7 +38,6 @@ export class CommentService {
     async create(createCommentDto: CreateCommentDto, files: Express.Multer.File[] = []): Promise<Comment & { files?: File[] }> {
         const { taskId, userId, comment, date } = createCommentDto;
 
-        console.log(createCommentDto)
         const task = await this.taskRepository.findOne({ where: { id: taskId } });
         if (!task) {
             throw new NotFoundException('Task not found');

@@ -25,4 +25,7 @@ export class Ticket {
 
     @Column({ default: false })
     status: boolean;
+
+    @Column({ default: "Pendiente" })
+    descriptionStatus: string;
 }

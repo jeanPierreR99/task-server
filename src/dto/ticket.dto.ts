@@ -28,6 +28,7 @@ export class UpdateTicketDto {
     @IsString()
     description: string;
 
+    @IsOptional()
     @IsString()
     requestedBy: string;
 
@@ -42,6 +43,9 @@ export class UpdateTicketDto {
     @IsOptional()
     @IsBoolean()
     status: boolean;
+    
+    @IsOptional()
+    descriptionStatus: string;
 
     @IsOptional()
     @IsDateString()

@@ -11,7 +11,6 @@ export class TaskGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 this.project[projectId] = [];
             }
             this.project[projectId].push(socket);
-            console.log(`Socket de tareas ${socket.id} joined task project ${projectId}`);
         });
     }
 
@@ -19,7 +18,6 @@ export class TaskGateway implements OnGatewayConnection, OnGatewayDisconnect {
         for (let projectId in this.project) {
             this.project[projectId] = this.project[projectId].filter(s => s.id !== socket.id);
         }
-        console.log(`Socket ${socket.id} disconnected`);
     }
 
     @SubscribeMessage('newTaskProject')
@@ -30,7 +28,6 @@ export class TaskGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.project[projectId].forEach(socket => {
                 socket.emit('updateTaskProject', { projectId, task });
             });
-            console.log(`New task sent to project ${projectId}`);
         } else {
             console.log(`No sockets connected to project ${projectId}`);
         }
@@ -44,7 +41,6 @@ export class TaskGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.project[projectId].forEach(socket => {
                 socket.emit('updateCategoryProject', { projectId, category });
             });
-            console.log(`New category sent to project ${projectId}`);
         } else {
             console.log(`No sockets connected to project ${projectId}`);
         }
@@ -57,7 +53,6 @@ export class TaskGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.project[projectId].forEach(socket => {
                 socket.emit('deleteCategoryProject', { projectId, category });
             });
-            console.log(`delete category to project ${projectId}`);
         } else {
             console.log(`No sockets connected to project ${projectId}`);
         }
@@ -70,7 +65,6 @@ export class TaskGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.project[projectId].forEach(socket => {
                 socket.emit('updateCategoryTaskProject', { projectId, task });
             });
-            console.log(`update category task to project ${projectId}`);
         } else {
             console.log(`No sockets connected to project ${projectId}`);
         }
@@ -83,7 +77,30 @@ export class TaskGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.project[projectId].forEach(socket => {
                 socket.emit('deleteTaskProject', { projectId, task });
             });
-            console.log(`update category task to project ${projectId}`);
+        } else {
+            console.log(`No sockets connected to project ${projectId}`);
+        }
+    }
+
+    @SubscribeMessage('updateTaskStatusProjectId')
+    async updateTaskStatusProject(@MessageBody() data: any) {
+        const { projectId, task } = data;
+        if (this.project[projectId] && this.project[projectId].length > 0) {
+            this.project[projectId].forEach(socket => {
+                socket.emit('updateTaskStatusProject', { projectId, task });
+            });
+        } else {
+            console.log(`No sockets connected to project ${projectId}`);
+        }
+    }
+
+    @SubscribeMessage('updateTaskDateProjectId')
+    async updateTaskDateProject(@MessageBody() data: any) {
+        const { projectId, task } = data;
+        if (this.project[projectId] && this.project[projectId].length > 0) {
+            this.project[projectId].forEach(socket => {
+                socket.emit('updateTaskDateProject', { projectId, task });
+            });
         } else {
             console.log(`No sockets connected to project ${projectId}`);
         }

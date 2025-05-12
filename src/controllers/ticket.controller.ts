@@ -4,10 +4,10 @@ import {
     Post,
     Body,
     Param,
-    Put,
     Delete,
     HttpCode,
     HttpStatus,
+    Patch,
 } from '@nestjs/common';
 import { CreateTicketDto, UpdateTicketDto } from 'src/dto/ticket.dto';
 import { TicketService } from 'src/services/ticket.service';
@@ -32,7 +32,7 @@ export class TicketController {
         return this.ticketService.findOne(id);
     }
 
-    @Put(':id')
+    @Patch(':id')
     update(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
         return this.ticketService.update(id, updateTicketDto);
     }

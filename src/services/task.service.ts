@@ -80,8 +80,12 @@ export class TaskService {
             office
         });
 
-        await this.taskGateway.newTask({ projectId: category.project.id, task })
-        return this.taskRepository.save(task);
+        const savedTask = await this.taskRepository.save(task);
+
+        await this.taskGateway.newTask({ projectId: category.project.id, task: savedTask });
+
+        return savedTask;
+
     }
 
     async findAll(): Promise<Task[]> {
@@ -138,6 +142,14 @@ export class TaskService {
 
         task.category = category;
         await this.taskGateway.updateTaskCategory({ projectId: category.project.id, task })
+        return this.taskRepository.save(task);
+    }
+
+    async updateDate(idTask: string, data: any) {
+        const task = await this.taskRepository.findOne({ relations: ['category.project'], where: { id: idTask } });
+        if (!task) throw new NotFoundException('Tarea no encontrada');
+        task.dateCulmined = data.dateCulmined;
+        await this.taskGateway.updateTaskDateProject({ projectId: task.category.project.id, task })
         return this.taskRepository.save(task);
     }
 
@@ -206,25 +218,23 @@ export class TaskService {
     }
 
     async updateStatus(idTask: string, data: any) {
-        const task = await this.taskRepository.findOne({ where: { id: idTask } });
+        const task = await this.taskRepository.findOne({ where: { id: idTask }, relations: ['category.project'] });
         if (!task) throw new NotFoundException('Tarea no encontrada');
-
         task.completed = data.completed;
+        task.status = data.status;
 
         const ticket = await this.ticketRepository.findOne({ where: { code: task.name } });
         if (ticket) {
             await this.ticketRepository.update(ticket.id, {
                 status: data.completed,
-                updatedAt: data.updateAt,
+                updatedAt: data.updatedAt,
+                descriptionStatus: data.descriptionStatus
             });
 
             const updatedTicket = await this.ticketRepository.findOneBy({ id: ticket.id });
             await this.ticketGateway.newTicket({ data: updatedTicket });
         }
-
+        await this.taskGateway.updateTaskStatusProject({ projectId: task.category.project.id, task })
         return this.taskRepository.save(task);
     }
-
-
-
 }

@@ -45,6 +45,14 @@ export class TaskController {
         return this.taskService.updateCategory(idTask, idCategory);
     }
 
+    @Patch('date')
+    updateDate(
+        @Query('id_task') idTask: string,
+        @Body() data: any,
+    ) {
+        return this.taskService.updateDate(idTask, data);
+    }
+
     @Put(':id')
     async update(@Param('id') id: string, @Query('id') idUser: string, @Body() updateTaskDto: any): Promise<Task> {
         return this.taskService.update(id, idUser, updateTaskDto);
@@ -57,8 +65,6 @@ export class TaskController {
     ): Promise<void> {
 
         await this.taskService.deleteById(taskId, userId);
-
-
     }
 
     @Patch(':id/status')

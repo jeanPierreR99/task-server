@@ -63,9 +63,6 @@ export class TicketService {
         return savedTicket;
     }
 
-
-
-
     async findAll(): Promise<Ticket[]> {
         return await this.ticketRepository.find({
             order: { createdAt: 'DESC' },
@@ -81,15 +78,21 @@ export class TicketService {
     }
 
     async update(id: string, updateTicketDto: UpdateTicketDto): Promise<Ticket> {
-        const ticket = await this.findOne(id);
+        const ticket = await this.ticketRepository.findOne({ where: { code: id } });
 
-        const updated = this.ticketRepository.merge(ticket, {
-            ...updateTicketDto,
-            updatedAt: updateTicketDto.updatedAt ? new Date(updateTicketDto.updatedAt) : new Date(),
-        });
+        if (!ticket) {
+            throw new NotFoundException(`Ticket with id ${id} not found`);
+        }
 
-        return await this.ticketRepository.save(updated);
+        Object.assign(ticket, updateTicketDto);
+
+        const savedTicket = await this.ticketRepository.save(ticket);
+
+        await this.ticketGateway.newTicket({ data: savedTicket });
+
+        return savedTicket;
     }
+
 
     async remove(id: string): Promise<void> {
         const ticket = await this.findOne(id);

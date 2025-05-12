@@ -29,12 +29,16 @@ export class CategoryService {
         const category = this.categoryRepository.create({
             ...createCategoryDto,
             project,
-            tasks: []
+            tasks: [],
         });
 
-        this.taskGateway.newCategory({ projectId: project.id, category })
-        return this.categoryRepository.save(category);
+        const savedCategory = await this.categoryRepository.save(category);
+
+        this.taskGateway.newCategory({ projectId: project.id, category: savedCategory });
+
+        return savedCategory;
     }
+
 
     async findAll(projectId: string): Promise<Category[]> {
         const user = await this.projectRepository.findOne({
