@@ -4,12 +4,11 @@ import { Repository } from 'typeorm';
 import { Task } from 'src/entities/task.entity';
 import { User } from 'src/entities/user.entity';
 import { Category } from 'src/entities/category.entity';
-import { CreateTaskDto, UpdateTaskDto } from 'src/dto/task.dto';
+import { CreateTaskDto } from 'src/dto/task.dto';
 import { TaskGateway } from 'src/gateway/task.gateway';
 import { Office } from 'src/entities/Office.entity';
 import { ActivityGateway } from 'src/gateway/activity.gateway';
 import { Activity } from 'src/entities/activity.entity';
-import { GetDay } from 'src/utils/date';
 import { TicketGateway } from 'src/gateway/ticket.gateway';
 import { Ticket } from 'src/entities';
 
@@ -173,7 +172,7 @@ export class TaskService {
 
             const activity = this.activityRepository.create({
                 action: `Actualizo de responsable la tarea a ${user.name}`,
-                create_at: GetDay(),
+                create_at: updateTaskDto.update_at,
                 user: userAction,
                 task,
             });

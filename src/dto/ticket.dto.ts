@@ -38,7 +38,7 @@ export class UpdateTicketDto {
 
     @IsOptional()
     @IsDateString()
-    createdAt: string;
+    create_at: string;
 
     @IsOptional()
     @IsBoolean()
