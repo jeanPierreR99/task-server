@@ -14,6 +14,12 @@ export class Notification {
     @Column({ type: 'text' })
     auth: string;
 
+    @Column({ type: 'text' })
+    userId: string;
+
+    @Column({ type: 'text' })
+    userName: string;
+
     @CreateDateColumn()
     createdAt: Date;
 }

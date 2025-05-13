@@ -26,6 +26,10 @@ export class TaskController {
     async findAllFalse(@Param('userId') userId: string): Promise<Task[]> {
         return this.taskService.findAllFalse(userId);
     }
+    @Get('user/find/:userId')
+    async findByUser(@Param('userId') userId: string): Promise<Task[]> {
+        return this.taskService.findByUser(userId);
+    }
     @Get(':status/project/:projectId')
     async findFalse(@Param('projectId') projectId: string, @Param('status') status: string): Promise<Task[]> {
         const parsedStatus = status === 'true';

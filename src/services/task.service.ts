@@ -10,7 +10,8 @@ import { Office } from 'src/entities/Office.entity';
 import { ActivityGateway } from 'src/gateway/activity.gateway';
 import { Activity } from 'src/entities/activity.entity';
 import { TicketGateway } from 'src/gateway/ticket.gateway';
-import { Ticket } from 'src/entities';
+import { Notification, Ticket } from 'src/entities';
+import { NotificationService } from './notification.service';
 
 @Injectable()
 export class TaskService {
@@ -32,6 +33,9 @@ export class TaskService {
 
         @InjectRepository(Activity)
         private activityRepository: Repository<Activity>,
+
+        private notificationService: NotificationService,
+
         private taskGateway: TaskGateway,
         private activityGateway: ActivityGateway,
         private ticketGateway: TicketGateway,
@@ -80,6 +84,12 @@ export class TaskService {
         });
 
         const savedTask = await this.taskRepository.save(task);
+        
+        await this.notificationService.sendNotificationToUser(
+            task.responsible.id,
+            'Nueva tarea asignada',
+            `Te han asignado una nueva tarea: ${task.name}`,
+        );
 
         await this.taskGateway.newTask({ projectId: category.project.id, task: savedTask });
 
@@ -93,6 +103,15 @@ export class TaskService {
             order: { dateCulmined: "DESC" }
         });
     }
+
+    async findByUser(id: string): Promise<Task[]> {
+        return this.taskRepository.find({
+            where: { responsible: { id } },
+            relations: ['responsible', 'created_by', 'office'],
+            order: { dateCulmined: "DESC" }
+        });
+    }
+
     async findAllTicket(): Promise<Task[]> {
         return this.taskRepository
             .createQueryBuilder('task')
