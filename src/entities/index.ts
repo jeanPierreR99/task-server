@@ -10,3 +10,4 @@ export * from './subtask.entity';
 export * from './task.entity';
 export * from './user.entity';
 export * from './ticket.entity';
+export * from './notification.entity';

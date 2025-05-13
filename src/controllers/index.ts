@@ -11,3 +11,4 @@ export * from './task.controller';
 export * from './upload.controller';
 export * from './user.controller';
 export * from './ticket.controller';
+export * from './notification.controller';

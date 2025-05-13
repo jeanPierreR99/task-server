@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Category, Role, Subtask, Task, User, Activity, PrintScanner, Office, Project, File, Comment, Ticket } from 'src/entities';
+import { Category, Role, Subtask, Task, User, Activity, PrintScanner, Office, Project, File, Comment, Ticket, Notification } from 'src/entities';
 import { TicketCounter } from 'src/entities/ticketCounter.entity';
 
 @Module({
@@ -19,7 +19,7 @@ import { TicketCounter } from 'src/entities/ticketCounter.entity';
                 username: config.get<string>('DB_USER'),
                 password: config.get<string>('DB_PASSWORD'),
                 database: config.get<string>('DB_NAME'),
-                entities: [Category, Comment, File, Role, Subtask, Task, User, Activity, PrintScanner, Office, Project, Ticket, TicketCounter],
+                entities: [Category, Comment, File, Role, Subtask, Task, User, Activity, PrintScanner, Office, Project, Ticket, TicketCounter, Notification],
                 synchronize: true,
                 // logging: true,
                 // logger: 'advanced-console',

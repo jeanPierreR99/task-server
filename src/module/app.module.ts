@@ -2,9 +2,9 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Activity, Category, Office, PrintScanner, Project, Role, Subtask, Task, User, Comment, File, Ticket } from 'src/entities';
-import { ActivityService, CategoryService, CommentService, FileService, OfficeService, PrintScannerService, ProjectService, RoleService, SeedService, SubtaskService, TaskService, TicketService, UserService } from 'src/services';
-import { RoleController, UserController, CategoryController, UploadController, TaskController, SubtaskController, CommentController, FileController, ActivityController, PrintScannerController, OfficeController, ProjectController, TicketController } from 'src/controllers';
+import { Activity, Category, Office, PrintScanner, Project, Role, Subtask, Task, User, Comment, File, Ticket, Notification } from 'src/entities';
+import { ActivityService, CategoryService, CommentService, FileService, NotificationService, OfficeService, PrintScannerService, ProjectService, RoleService, SeedService, SubtaskService, TaskService, TicketService, UserService } from 'src/services';
+import { RoleController, UserController, CategoryController, UploadController, TaskController, SubtaskController, CommentController, FileController, ActivityController, PrintScannerController, OfficeController, ProjectController, TicketController, NotificationController } from 'src/controllers';
 import { CommentGateway, ActivityGateway, TaskGateway } from 'src/gateway';
 import { TicketCounter } from 'src/entities/ticketCounter.entity';
 import { TicketGateway } from 'src/gateway/ticket.gateway';
@@ -28,7 +28,8 @@ import { TicketGateway } from 'src/gateway/ticket.gateway';
             Office,
             Project,
             Ticket,
-            TicketCounter
+            TicketCounter,
+            Notification
         ]),
     ],
     providers: [
@@ -48,7 +49,8 @@ import { TicketGateway } from 'src/gateway/ticket.gateway';
         PrintScannerService,
         OfficeService,
         ProjectService,
-        TicketService
+        TicketService,
+        NotificationService
     ],
     controllers: [
         RoleController,
@@ -63,7 +65,8 @@ import { TicketGateway } from 'src/gateway/ticket.gateway';
         PrintScannerController,
         OfficeController,
         ProjectController,
-        TicketController
+        TicketController,
+        NotificationController
 
     ],
     exports: [SeedService],

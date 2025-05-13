@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class Ticket {
@@ -17,7 +17,7 @@ export class Ticket {
     @Column()
     area: string;
 
-    @Column({ type: 'timestamp', precision: 3 })
+    @CreateDateColumn({ type: 'timestamp' })
     create_at: Date;
 
     @Column({ type: 'timestamp', precision: 3, nullable: true })

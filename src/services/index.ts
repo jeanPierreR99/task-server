@@ -11,3 +11,4 @@ export * from './task.service';
 export * from './user.service';
 export * from './seed.service';
 export * from './ticket.service';
+export * from './notification.service';
