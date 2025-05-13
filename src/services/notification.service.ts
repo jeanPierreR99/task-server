@@ -1,5 +1,3 @@
-// src/push/push.service.ts
-
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Notification } from 'src/entities/notification.entity';
@@ -13,7 +11,6 @@ export class NotificationService {
         @InjectRepository(Notification)
         private subscriptionRepo: Repository<Notification>,
         private readonly configService: ConfigService
-
     ) {
         webpush.setVapidDetails(
             'mailto:asana.munitamboapta.gob.pe',
@@ -58,12 +55,22 @@ export class NotificationService {
 
             try {
                 await webpush.sendNotification(subscription, payload);
-            } catch (err) {
+            } catch (err: any) {
                 console.error('Error enviando notificación:', err);
+
+                // Si el error es 404 o 410, elimina la suscripción inválida
+                if (err.statusCode === 404 || err.statusCode === 410) {
+                    console.log(`Eliminando suscripción inválida con endpoint: ${sub.endpoint}`);
+                    try {
+                        await this.subscriptionRepo.delete({ endpoint: sub.endpoint });
+                        console.log('Suscripción eliminada correctamente');
+                    } catch (deleteError) {
+                        console.error('Error eliminando suscripción:', deleteError);
+                    }
+                }
             }
         }
 
-        return { message: 'Notificaciones enviadas' };
+        return { message: 'Proceso de envío de notificaciones finalizado' };
     }
-
 }
