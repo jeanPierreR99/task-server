@@ -1,4 +1,5 @@
-import { IsString, IsEmail, IsOptional, IsUUID, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsEmail, IsOptional, IsUUID, IsNumber, IsArray, ValidateNested } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -19,6 +20,11 @@ export class CreateUserDto {
 
   @IsUUID()
   roleId: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProjectIdDto)
+  project: ProjectIdDto[];
 
   @IsUUID()
   projectId: string;
@@ -49,4 +55,23 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   imageUrl: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProjectIdDto)
+  project: ProjectIdDto[];
+
+  @IsOptional()
+  @IsUUID()
+  roleId: string;
+
+  @IsOptional()
+  @IsUUID()
+  projectId: string;
+}
+
+class ProjectIdDto {
+  @IsUUID()
+  id: string;
 }

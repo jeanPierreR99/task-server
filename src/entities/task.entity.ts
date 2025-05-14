@@ -43,7 +43,7 @@ export class Task {
     @ManyToOne(() => Category, category => category.tasks, { nullable: true })
     category: Category;
 
-    @ManyToOne(() => Office, office => office.tasks, { nullable: true })
+    @ManyToOne(() => Office, office => office.tasks)
     office: Office;
 
     @OneToMany(() => Subtask, subtask => subtask.task, { cascade: true, onDelete: 'CASCADE' })

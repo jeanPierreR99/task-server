@@ -84,7 +84,7 @@ export class TaskService {
         });
 
         const savedTask = await this.taskRepository.save(task);
-        
+
         await this.notificationService.sendNotificationToUser(
             task.responsible.id,
             'Nueva tarea asignada',
@@ -104,10 +104,10 @@ export class TaskService {
         });
     }
 
-    async findByUser(id: string): Promise<Task[]> {
+    async findByUser(id: string, projectId: string): Promise<Task[]> {
         return this.taskRepository.find({
-            where: { responsible: { id } },
-            relations: ['responsible', 'created_by', 'office'],
+            where: { responsible: { id }, category: { project: { id: projectId } } },
+            relations: ['responsible', 'created_by', 'office', 'category', 'category.project'],
             order: { dateCulmined: "DESC" }
         });
     }
@@ -174,23 +174,20 @@ export class TaskService {
     async update(idTask: string, idUser: string, updateTaskDto: any): Promise<Task> {
         const task = await this.taskRepository.findOne({
             where: { id: idTask },
-            relations: ['responsible']
+            relations: ['responsible'],
         });
-
         if (!task) throw new NotFoundException('Tarea no encontrada');
 
         if (updateTaskDto.responsibleId) {
-
             const user = await this.userRepository.findOne({ where: { id: updateTaskDto.responsibleId } });
-
             if (!user) throw new NotFoundException('Usuario responsable no encontrado');
 
-            const userAction = await this.userRepository.findOne({ where: { id: idUser } })
+            const userAction = await this.userRepository.findOne({ where: { id: idUser } });
 
             task.responsible = user;
 
             const activity = this.activityRepository.create({
-                action: `Actualizo de responsable la tarea a ${user.name}`,
+                action: `Actualizó el responsable de la tarea a ${user.name}`,
                 create_at: updateTaskDto.update_at,
                 user: userAction,
                 task,
@@ -204,16 +201,55 @@ export class TaskService {
             });
 
             task.category = category;
-            await this.taskRepository.save(task)
-            await this.activityRepository.save(activity)
-            await this.ticketGateway.newTaskTicket({ data: task })
-            await this.activityGateway.newActivity({ data: activity })
-
+            await this.taskRepository.save(task);
+            await this.activityRepository.save(activity);
+            await this.ticketGateway.newTaskTicket({ data: task });
+            await this.activityGateway.newActivity({ data: activity });
         }
 
+        const userAction = await this.userRepository.findOne({ where: { id: idUser } });
         const { responsibleId, ...rest } = updateTaskDto;
-        Object.assign(task, rest);
 
+        const nameChanged =
+            (rest.name && rest.name !== task.name) ||
+            (rest.nameTicket && rest.nameTicket !== task.nameTicket);
+
+        if (nameChanged) {
+            const newName = rest.name || rest.nameTicket;
+            const activity = this.activityRepository.create({
+                action: `Actualizó el nombre de la tarea a "${newName}"`,
+                create_at: updateTaskDto.update_at,
+                user: userAction,
+                task,
+            });
+
+            await this.activityRepository.save(activity);
+            await this.activityGateway.newActivity({ data: activity });
+        }
+
+        const dateChanged = task.dateCulmined == rest.dateCulmined;
+
+        if (rest.dateCulmined && !dateChanged) {
+            const formattedDate = rest.update_at
+                ? new Date(rest.dateCulmined).toLocaleDateString('es-PE', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                })
+                : 'sin fecha';
+
+            const activity = this.activityRepository.create({
+                action: `Actualizó la fecha de entrega a ${formattedDate}`,
+                create_at: updateTaskDto.update_at,
+                user: userAction,
+                task,
+            });
+
+            await this.activityRepository.save(activity);
+            await this.activityGateway.newActivity({ data: activity });
+        }
+
+        Object.assign(task, rest);
         return this.taskRepository.save(task);
     }
 
@@ -252,6 +288,19 @@ export class TaskService {
             const updatedTicket = await this.ticketRepository.findOneBy({ id: ticket.id });
             await this.ticketGateway.newTicket({ data: updatedTicket });
         }
+
+        const userAction = await this.userRepository.findOne({ where: { id: data.idUser } });
+
+        const activity = this.activityRepository.create({
+            action: `Marcó la tarea como ${data.completed ? "Completada" : "Pendiente"}`,
+            create_at: data.update_at,
+            user: userAction,
+            task,
+        });
+
+        await this.activityRepository.save(activity);
+        await this.activityGateway.newActivity({ data: activity });
+
         await this.taskGateway.updateTaskStatusProject({ projectId: task.category.project.id, task })
         return this.taskRepository.save(task);
     }

@@ -78,6 +78,7 @@ export class SeedService {
             projectId: defaultProject.id, // Aquí asignamos el proyecto
             imageUrl: "",
             active: true,
+            projects: [defaultProject],
         });
 
         const savedUser = await this.userRepo.save(adminUser);

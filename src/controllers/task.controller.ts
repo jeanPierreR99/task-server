@@ -26,9 +26,9 @@ export class TaskController {
     async findAllFalse(@Param('userId') userId: string): Promise<Task[]> {
         return this.taskService.findAllFalse(userId);
     }
-    @Get('user/find/:userId')
-    async findByUser(@Param('userId') userId: string): Promise<Task[]> {
-        return this.taskService.findByUser(userId);
+    @Get('user/find/:userId/:projectId')
+    async findByUser(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<Task[]> {
+        return this.taskService.findByUser(userId, projectId);
     }
     @Get(':status/project/:projectId')
     async findFalse(@Param('projectId') projectId: string, @Param('status') status: string): Promise<Task[]> {

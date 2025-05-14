@@ -1,18 +1,18 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { CreateUserDto, LoginUser, UpdateUserDto } from 'src/dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import { Category } from 'src/entities/category.entity';
 import { UnauthorizedException } from '@nestjs/common';
+import { Project } from 'src/entities';
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
-        @InjectRepository(Category)
-        private readonly categoryRepo: Repository<Category>,
+        @InjectRepository(Project)
+        private readonly projectRepo: Repository<Project>,
     ) { }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
@@ -22,7 +22,9 @@ export class UserService {
         const user = this.userRepo.create({
             ...createUserDto,
             passwordHash,
+            projects: createUserDto.project.map(p => ({ id: p.id })),
         });
+
 
         const savedUser = await this.userRepo.save(user);
 
@@ -30,20 +32,26 @@ export class UserService {
     }
 
     findProjectAll(projectId: string): Promise<User[]> {
-        return this.userRepo.find({ relations: ['role', 'project'], where: { project: { id: projectId } } });
+        return this.userRepo
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.role', 'role')
+            .leftJoinAndSelect('user.projects', 'project')
+            .where('project.id = :projectId', { projectId })
+            .getMany();
     }
 
+
     findAll(): Promise<User[]> {
-        return this.userRepo.find({ relations: ['role', 'project'] });
+        return this.userRepo.find({ relations: ['role', 'projects'] });
     }
 
     findById(userId: string): Promise<User> {
-        return this.userRepo.findOne({ where: { id: userId } });
+        return this.userRepo.findOne({ where: { id: userId }, relations: ['projects'] });
     }
 
 
     async validateUser(loginUser: LoginUser): Promise<User | null> {
-        const user = await this.userRepo.findOne({ where: { email: loginUser.email }, relations: ['role', 'project'] });
+        const user = await this.userRepo.findOne({ where: { email: loginUser.email }, relations: ['role', 'projects'] });
         if (!user) return null;
 
         const isMatch = await bcrypt.compare(loginUser.passwordHash, user.passwordHash);
@@ -63,13 +71,14 @@ export class UserService {
         return user;
     }
 
-
-    async searchByName(query: string): Promise<User[]> {
-        return await this.userRepo.find({
-            where: {
-                name: ILike(`%${query}%`)
-            }
-        });
+    async searchByName(query: string, projectId: string): Promise<User[]> {
+        return await this.userRepo
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.projects', 'project')
+            .leftJoinAndSelect('user.role', 'role')
+            .where('user.name LIKE :query', { query: `%${query}%` })
+            .andWhere('project.id = :projectId', { projectId })
+            .getMany();
     }
 
     async changeRole(userId: string, roleId: string): Promise<User> {
@@ -107,5 +116,30 @@ export class UserService {
 
         return await this.userRepo.save(user);
     }
+
+    // users.service.ts
+    async updateUserProjects(userId: string, projectIds: string[]): Promise<any> {
+        const user = await this.userRepo.findOne({
+            where: { id: userId },
+            relations: ['projects'],
+        });
+
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        const projects = await this.projectRepo.find({
+            where: { id: In(projectIds) },
+        });
+
+        if (projects.length !== projectIds.length) {
+            throw new BadRequestException('Algunos proyectos no existen');
+        }
+
+        user.projects = projects;
+
+        return await this.userRepo.save(user);
+    }
+
 
 }

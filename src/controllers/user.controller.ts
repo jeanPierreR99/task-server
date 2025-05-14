@@ -26,6 +26,14 @@ export class UserController {
         return this.userService.findById(userId);
     }
 
+    @Patch(':id/projects')
+    async updateUserProjects(
+        @Param('id') userId: string,
+        @Body() body: string[]
+    ) {
+        return this.userService.updateUserProjects(userId, body);
+    }
+
     @Post('login')
     async login(@Body() loginUser: LoginUser) {
         try {
@@ -43,8 +51,8 @@ export class UserController {
     }
 
     @Get('search')
-    async search(@Query('q') query: string) {
-        return this.userService.searchByName(query);
+    async search(@Query('q') query: string, @Query('projectId') projectId: string) {
+        return this.userService.searchByName(query, projectId);
     }
 
     @Patch(':userId/role')

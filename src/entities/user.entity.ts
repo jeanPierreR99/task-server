@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 import { Task } from './task.entity';
 import { Subtask } from './subtask.entity';
 import { Comment } from './comment.entity';
@@ -51,6 +51,7 @@ export class User {
     @ManyToOne(() => Role, role => role.users)
     role: Role;
 
-    @ManyToOne(() => Project, project => project.users)
-    project: Project;
+    @ManyToMany(() => Project, project => project.users)
+    @JoinTable()
+    projects: Project[];
 }

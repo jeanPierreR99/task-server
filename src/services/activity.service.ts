@@ -104,6 +104,9 @@ export class ActivityService {
         return this.activityRepository.find({
             where: { task: { id: taskId } },
             relations: ['user'],
+            order: {
+                create_at: 'DESC'
+            },
         });
     }
 }
