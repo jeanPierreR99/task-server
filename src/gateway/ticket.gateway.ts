@@ -14,7 +14,7 @@ export class TicketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     server: Server;
 
     handleConnection(socket: Socket) {
-        console.log(`Socket de tickets ${socket.id} connected`);
+        console.log(`Socket de tickets global ${socket.id} connected`);
     }
 
     handleDisconnect(socket: Socket) {

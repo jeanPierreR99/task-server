@@ -17,6 +17,9 @@ export class Ticket {
     @Column()
     area: string;
 
+    @Column({ default: "Normal" })
+    status_string: string;
+
     @CreateDateColumn({ type: 'timestamp' })
     create_at: Date;
 

@@ -8,6 +8,8 @@ import { RoleController, UserController, CategoryController, UploadController, T
 import { CommentGateway, ActivityGateway, TaskGateway } from 'src/gateway';
 import { TicketCounter } from 'src/entities/ticketCounter.entity';
 import { TicketGateway } from 'src/gateway/ticket.gateway';
+import { DashboardService } from 'src/services/dashboard.service';
+import { DashboardController } from 'src/controllers/dashboard.controller';
 
 @Module({
     imports: [
@@ -50,7 +52,8 @@ import { TicketGateway } from 'src/gateway/ticket.gateway';
         OfficeService,
         ProjectService,
         TicketService,
-        NotificationService
+        NotificationService,
+        DashboardService
     ],
     controllers: [
         RoleController,
@@ -66,7 +69,8 @@ import { TicketGateway } from 'src/gateway/ticket.gateway';
         OfficeController,
         ProjectController,
         TicketController,
-        NotificationController
+        NotificationController,
+        DashboardController
 
     ],
     exports: [SeedService],

@@ -41,6 +41,10 @@ export class UpdateTicketDto {
     create_at: string;
 
     @IsOptional()
+    @IsString()
+    status_string: string;
+
+    @IsOptional()
     @IsBoolean()
     status: boolean;
 

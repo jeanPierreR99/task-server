@@ -14,7 +14,7 @@ export class ActivityGateway implements OnGatewayConnection, OnGatewayDisconnect
   server: Server;
 
   handleConnection(socket: Socket) {
-    console.log(`Socket de actividades ${socket.id} connected`);
+    console.log(`Socket de actividades global ${socket.id} connected`);
 
   }
 

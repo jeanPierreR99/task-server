@@ -10,6 +10,7 @@ export class TaskGateway implements OnGatewayConnection, OnGatewayDisconnect {
             if (!this.project[projectId]) {
                 this.project[projectId] = [];
             }
+            console.log(`Socket de task global ${socket.id} connected`);
             this.project[projectId].push(socket);
         });
     }
