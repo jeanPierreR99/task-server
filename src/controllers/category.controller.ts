@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Query, Delete, HttpCode, BadRequestException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Query, Delete, HttpCode, BadRequestException, HttpStatus, Patch } from '@nestjs/common';
 import { CreateCategoryDto } from 'src/dto/category.dto';
 import { Category } from 'src/entities/category.entity';
 import { CategoryService } from 'src/services/category.service';
@@ -40,4 +40,8 @@ export class CategoryController {
         }
     }
 
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateTicketDto: any) {
+        return this.categoryService.update(id, updateTicketDto);
+    }
 }

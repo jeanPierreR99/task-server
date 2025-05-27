@@ -98,4 +98,16 @@ export class CategoryService {
             .setParameter('projectId', projectId)
             .getMany();
     }
+
+    async update(id: string, updateCategory: Partial<Category>): Promise<Category> {
+        const ticket = await this.categoryRepository.findOne({ where: { id } });
+
+        if (!ticket) {
+            throw new NotFoundException(`Ticket with id ${id} not found`);
+        }
+
+        Object.assign(ticket, updateCategory);
+
+        return await this.categoryRepository.save(ticket);
+    }
 }

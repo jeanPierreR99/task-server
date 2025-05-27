@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DashboardService } from 'src/services/dashboard.service';
 
 @Controller('dashboard')
@@ -21,4 +21,18 @@ export class DashboardController {
     async getChartDataUserPending(@Param('userId') userId: string) {
         return this.dashboardService.getChartDataUserPending(userId);
     }
+
+    @Get()
+    async getChart(
+        @Query("userId") userId: string,
+        @Query("start") start: string,
+        @Query("end") end: string,
+    ) {
+        return this.dashboardService.getChartDataUserCompleteByRange(
+            userId,
+            new Date(start),
+            new Date(end)
+        )
+    }
+
 }

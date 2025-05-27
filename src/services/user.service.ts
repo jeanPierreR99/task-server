@@ -46,7 +46,7 @@ export class UserService {
     }
 
     findById(userId: string): Promise<User> {
-        return this.userRepo.findOne({ where: { id: userId }, relations: ['projects'] });
+        return this.userRepo.findOne({ where: { id: userId }, relations: ['projects', 'role'] });
     }
 
 
