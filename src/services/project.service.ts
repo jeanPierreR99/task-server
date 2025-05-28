@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { CreateProjectDto } from 'src/dto/project.dto';
-import { Category } from 'src/entities';
+import { Category, Task } from 'src/entities';
 import { Project } from 'src/entities/project.entity';
 import { Repository } from 'typeorm';
 
@@ -14,6 +14,8 @@ export class ProjectService {
         private readonly projectRepository: Repository<Project>,
         @InjectRepository(Category)
         private readonly categoryRepository: Repository<Category>,
+        @InjectRepository(Task)
+        private readonly taskRepository: Repository<Task>,
     ) { }
 
     async create(dto: CreateProjectDto): Promise<Project> {
@@ -43,17 +45,48 @@ export class ProjectService {
         return this.projectRepository.find({ relations: ['users', 'categories.tasks'] });
     }
 
-    async findOne(id: string): Promise<Project> {
+    async findOne(id: string, limit = 1, page = 1): Promise<Project & { totalPages: number }> {
+        console.log(id)
+        console.log(limit)
+        console.log(page)
         const project = await this.projectRepository.findOne({
-            relations: ['users', 'categories.tasks.responsible', 'categories.tasks.created_by', 'categories.tasks.office'],
             where: { id },
+            relations: ['users', 'categories'],
         });
+
         if (!project) throw new NotFoundException('Proyecto no encontrado');
-        return project;
+
+        const skip = (page - 1) * limit;
+
+        let maxPages = 0;
+
+        await Promise.all(
+            project.categories.map(async (category) => {
+                const [tasks, total] = await this.taskRepository.findAndCount({
+                    where: { category: { id: category.id } },
+                    relations: ['responsible', 'created_by', 'office'],
+                    order: { dateCulmined: 'DESC' },
+                    take: limit,
+                    skip,
+                });
+
+                (category as any).tasks = tasks;
+
+                const pages = Math.ceil(total / limit);
+                if (pages > maxPages) maxPages = pages;
+            })
+        );
+
+        return { ...project, totalPages: maxPages };
     }
 
+
+
+
+
+
     async remove(id: string): Promise<void> {
-        const project = await this.findOne(id);
+        const project = await this.projectRepository.findOne({ where: { id } });
         await this.projectRepository.remove(project);
     }
 }

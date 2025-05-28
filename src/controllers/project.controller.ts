@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
 import { CreateProjectDto } from 'src/dto/project.dto';
 import { Project } from 'src/entities/project.entity';
 import { ProjectService } from 'src/services/project.service';
@@ -18,8 +18,11 @@ export class ProjectController {
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string): Promise<Project> {
-        return this.projectService.findOne(id);
+    findOne(@Param('id') id: string,
+        @Query('limit') limit: string,
+        @Query('page') page: string
+    ): Promise<Project> {
+        return this.projectService.findOne(id, parseFloat(limit), parseFloat(page));
     }
 
     @Delete(':id')

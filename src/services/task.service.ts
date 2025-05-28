@@ -105,12 +105,22 @@ export class TaskService {
     }
 
     async findByUser(id: string, projectId: string): Promise<Task[]> {
-        return this.taskRepository.find({
-            where: { responsible: { id }, category: { project: { id: projectId } } },
-            relations: ['responsible', 'created_by', 'office', 'category', 'category.project'],
-            order: { dateCulmined: "DESC" }
-        });
+        return this.taskRepository
+            .createQueryBuilder('task')
+            .leftJoinAndSelect('task.responsible', 'responsible')
+            .leftJoinAndSelect('task.created_by', 'created_by')
+            .leftJoinAndSelect('task.office', 'office')
+            .leftJoinAndSelect('task.category', 'category')
+            .leftJoinAndSelect('category.project', 'project')
+            .leftJoinAndSelect('task.subtasks', 'subtask')
+            .leftJoinAndSelect('subtask.responsible', 'subtask_responsible')
+            .where('responsible.id = :id', { id })
+            .andWhere('project.id = :projectId', { projectId })
+            .orWhere('subtask_responsible.id = :id', { id })
+            .orderBy('task.dateCulmined', 'DESC')
+            .getMany();
     }
+
 
     async findAllTicket(): Promise<Task[]> {
         return this.taskRepository
