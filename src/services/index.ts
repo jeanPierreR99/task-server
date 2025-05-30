@@ -12,4 +12,4 @@ export * from './user.service';
 export * from './seed.service';
 export * from './ticket.service';
 export * from './notification.service';
-export * from './report.excel.service';
+export * from './report.service';

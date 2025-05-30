@@ -3,8 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Activity, Category, Office, PrintScanner, Project, Role, Subtask, Task, User, Comment, File, Ticket, Notification } from 'src/entities';
-import { ActivityService, CategoryService, CommentService, FileService, NotificationService, OfficeService, PrintScannerService, ProjectService, ReportExcelService, RoleService, SeedService, SubtaskService, TaskService, TicketService, UserService } from 'src/services';
-import { RoleController, UserController, CategoryController, UploadController, TaskController, SubtaskController, CommentController, FileController, ActivityController, PrintScannerController, OfficeController, ProjectController, TicketController, NotificationController, ReportExcelController } from 'src/controllers';
+import { ActivityService, CategoryService, CommentService, FileService, NotificationService, OfficeService, PrintScannerService, ProjectService, ReportService, RoleService, SeedService, SubtaskService, TaskService, TicketService, UserService } from 'src/services';
+import { RoleController, UserController, CategoryController, UploadController, TaskController, SubtaskController, CommentController, FileController, ActivityController, PrintScannerController, OfficeController, ProjectController, TicketController, NotificationController, ReportController } from 'src/controllers';
 import { CommentGateway, ActivityGateway, TaskGateway } from 'src/gateway';
 import { TicketCounter } from 'src/entities/ticketCounter.entity';
 import { TicketGateway } from 'src/gateway/ticket.gateway';
@@ -54,7 +54,7 @@ import { DashboardController } from 'src/controllers/dashboard.controller';
         TicketService,
         NotificationService,
         DashboardService,
-        ReportExcelService
+        ReportService
     ],
     controllers: [
         RoleController,
@@ -72,7 +72,7 @@ import { DashboardController } from 'src/controllers/dashboard.controller';
         TicketController,
         NotificationController,
         DashboardController,
-        ReportExcelController
+        ReportController
     ],
     exports: [SeedService],
 })

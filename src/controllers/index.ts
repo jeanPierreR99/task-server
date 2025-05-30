@@ -12,4 +12,4 @@ export * from './upload.controller';
 export * from './user.controller';
 export * from './ticket.controller';
 export * from './notification.controller';
-export * from './report.excel.controller';
+export * from './report.controller';
