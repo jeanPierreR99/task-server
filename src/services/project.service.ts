@@ -46,9 +46,6 @@ export class ProjectService {
     }
 
     async findOne(id: string, limit = 1, page = 1): Promise<Project & { totalPages: number }> {
-        console.log(id)
-        console.log(limit)
-        console.log(page)
         const project = await this.projectRepository.findOne({
             where: { id },
             relations: ['users', 'categories'],

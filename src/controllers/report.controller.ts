@@ -6,9 +6,9 @@ import { ReportService } from 'src/services';
 export class ReportController {
     constructor(private readonly reportService: ReportService) { }
 
-    @Get('user/:userId')
+    @Get('project-excel/:projectId')
     async downloadUserTaskReport(
-        @Param('userId') userId: string,
+        @Param('projectId') projectId: string,
         @Query('start') start: string,
         @Query('end') end: string,
         @Res() res: Response,
@@ -20,8 +20,8 @@ export class ReportController {
         const startDate = new Date(start);
         const endDate = new Date(end);
 
-        const excelBuffer = await this.reportService.generateTaskReportByUser(
-            userId,
+        const excelBuffer = await this.reportService.generateTaskReportByProject(
+            projectId,
             startDate,
             endDate,
         );
@@ -29,12 +29,13 @@ export class ReportController {
         res.set({
             'Content-Type':
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition': `attachment; filename=ReporteTareas_${userId}_${startDate.toISOString().slice(0, 10)}_to_${endDate.toISOString().slice(0, 10)}.xlsx`,
+            'Content-Disposition': `attachment; filename=ReporteTareas_${projectId}_${startDate.toISOString().slice(0, 10)}_to_${endDate.toISOString().slice(0, 10)}.xlsx`,
             'Content-Length': excelBuffer.length,
         });
 
         res.send(excelBuffer);
     }
+
     @Get('user-pdf/:userId')
     async getTaskReportPdf(
         @Param('userId') userId: string,
@@ -44,9 +45,9 @@ export class ReportController {
     ) {
         const startDate = start ? new Date(start) : new Date();
         const endDate = end ? new Date(end) : new Date();
-    
+
         const pdfBuffer = await this.reportService.generateTaskReportWithTemplate(userId, startDate, endDate);
-    
+
         res.set({
             'Content-Type': 'application/pdf',
             'Content-Disposition': `inline; filename="task-report-${userId}.pdf"`,
@@ -54,5 +55,5 @@ export class ReportController {
         });
         res.end(pdfBuffer);
     }
-    
+
 }
