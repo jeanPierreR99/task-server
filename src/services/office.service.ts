@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOfficeDto } from 'src/dto/office.dto';
 import { Office } from 'src/entities/Office.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 @Injectable()
 export class OfficeService {
@@ -16,9 +16,19 @@ export class OfficeService {
         return this.officeRepository.save(office);
     }
 
-    async findAll(): Promise<Office[]> {
+    async findAll(name?: string): Promise<Office[]> {
+        if (name) {
+            return this.officeRepository.find({
+                where: [
+                    { name: ILike(`%${name}%`), },
+                    { siglas: ILike(`%${name}%`), }
+                ],
+            });
+        }
+
         return this.officeRepository.find();
     }
+
 
     async findOne(id: string): Promise<Office> {
         const office = await this.officeRepository.findOne({ where: { id } });

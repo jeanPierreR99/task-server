@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
 import { CreateOfficeDto } from 'src/dto/office.dto';
 import { OfficeService } from 'src/services/office.service';
 
@@ -12,8 +12,8 @@ export class OfficeController {
     }
 
     @Get()
-    findAll() {
-        return this.officeService.findAll();
+    findAll(@Query('name') name?: string) {
+        return this.officeService.findAll(name);
     }
 
     @Get(':id')
